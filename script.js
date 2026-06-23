@@ -124,10 +124,20 @@ function RenderTabel() {
             // Ambil angka level asli dari database (default 1 jika null)
             const prismaLvlRaw = pemain.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
             const kubusLvlRaw = pemain.pencapaian_level?.kubus?.level_tertinggi || 1;
+            const balokLvlRaw = pemain.pencapaian_level?.balok?.level_tertinggi || 1;
+            const limasLvlRaw = pemain.pencapaian_level?.limas?.level_tertinggi || 1;
+            const tabungLvlRaw = pemain.pencapaian_level?.tabung?.level_tertinggi || 1;
+            const kerucutLvlRaw = pemain.pencapaian_level?.kkerucut.level_tertinggi || 1;
+            const bolaLvlRaw = pemain.pencapaian_level?.kubbolaevel_tertinggi || 1;
             
             // Ubah angka tersebut menjadi elemen badge text menggunakan fungsi pembantu kita
             const kolomPrisma = DapatkanTeksProgres(prismaLvlRaw);
             const kolomKubus = DapatkanTeksProgres(kubusLvlRaw);
+            const kolomBalok = DapatkanTeksProgres(balokLvlRaw);
+            const kolomLimas = DapatkanTeksProgres(limasLvlRaw);
+            const kolomTabung = DapatkanTeksProgres(tabungLvlRaw);
+            const kolomKerucut = DapatkanTeksProgres(kerucutLvlRaw);
+            const kolomBola = DapatkanTeksProgres(bolaLvlRaw);
             
             let waktuFormat = "-";
             if(pemain.terakhir_main) {
@@ -152,6 +162,11 @@ function RenderTabel() {
                 <td style="font-size: 13px; color: #666;">${waktuFormat}</td>
                 <td>${kolomPrisma}</td>
                 <td>${kolomKubus}</td>
+                <td>${kolomBalok}</td>
+                <td>${kolomLimas}</td>
+                <td>${kolomTabung}</td>
+                <td>${kolomKerucut}</td>
+                <td>${kolomBola}</td>
             `;
             tabelBody.appendChild(row);
         });
