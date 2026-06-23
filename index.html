@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Guru - BoxBot Edu</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f6f9;
+            color: #333;
+        }
+        .header {
+            background-color: #0044cc;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { margin: 0; font-size: 24px; }
+        .status-cloud {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+        tr:hover { background-color: #f1f5ff; }
+        .badge-bintang {
+            background-color: #ffc107;
+            color: #333;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .text-kosong {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>PANEL PEMANTAUAN GURU (BOX-BOT)</h1>
+        <div class="status-cloud">● Realtime Terhubung ke Firebase</div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Siswa</th>
+                <th>Kelas</th>
+                <th>Terakhir Main</th>
+                <th>Progres Prisma Segitiga</th>
+                <th>Progres Kubus</th>
+            </tr>
+        </thead>
+        <tbody id="tabel-body">
+            <tr>
+                <td colspan="5" class="text-kosong">Sedang memuat data siswa...</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        // === PASTE URL FIREBASE REALTIME DATABASE DI SINI ===
+        // Suffix URL wajib diakhiri dengan 'data_boxbot.json' agar bisa ditarik filenya
+        const URL_DATABASE = "https://boxbot-edu-default-rtdb.asia-southeast1.firebasedatabase.app/data_boxbot.json";
+
+        // Fungsi otomatis untuk mengambil data dari Cloud secara berkala (Polling Realtime)
+        async function AmbilDataFirebase() {
+            try {
+                const response = await fetch(URL_DATABASE);
+                const data = await response.json();
+                
+                const tabelBody = document.getElementById("tabel-body");
+                tabelBody.innerHTML = ""; // Bersihkan baris lama
+
+                if (!data || !data.daftar_pemain || data.daftar_pemain.length === 0) {
+                    tabelBody.innerHTML = `<tr><td colspan="5" class="text-kosong">Belum ada data siswa terdaftar di database.</td></tr>`;
+                    return;
+                }
+
+                // Lakukan looping untuk menyusun baris tabel berdasarkan array JSON dari Unity
+                data.daftar_pemain.forEach(pemain => {
+                    // Cek kelengkapan data bersyarat (Null Checks)
+                    const prismaLvl = pemain.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
+                    const kubusLvl = pemain.pencapaian_level?.kubus?.level_tertinggi || 1;
+                    
+                    // Format waktu agar lebih manusiawi
+                    let waktuFormat = "Belum terdeteksi";
+                    if(pemain.terakhir_main) {
+                        const dateObj = new Date(pemain.terakhir_main);
+                        waktuFormat = dateObj.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+                    }
+
+                    // Buat element baris (tr) baru
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td style="font-weight: bold; color: #111;">${pemain.nama_siswa || 'Tanpa Nama'}</td>
+                        <td>${pemain.kelas || 'Belum diatur'}</td>
+                        <td style="font-size: 13px; color: #666;">${waktuFormat}</td>
+                        <td><span class="badge-bintang">★ Level ${prismaLvl}</span></td>
+                        <td><span class="badge-bintang">★ Level ${kubusLvl}</span></td>
+                    `;
+                    tabelBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error("Gagal memuat data Firebase:", error);
+            }
+        }
+
+        // Jalankan fungsi saat web pertama kali dibuka
+        AmbilDataFirebase();
+
+        // Lakukan pembacaan otomatis setiap 3 detik agar tabel berkedip update secara realtime!
+        setInterval(AmbilDataFirebase, 3000);
+    </script>
+</body>
+</html>
