@@ -21,15 +21,25 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         h1 { margin: 0; font-size: 24px; }
-        .status-cloud {
-            display: inline-block;
-            background-color: #28a745;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-top: 5px;
+        
+        /* Kontrol Atas (Search & Info) */
+        .kontrol-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
+        .search-box {
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            width: 300px;
+            outline: none;
+            transition: 0.3s;
+        }
+        .search-box:focus { border-color: #0044cc; box-shadow: 0 0 5px rgba(0,68,204,0.3); }
+        
+        /* Tabel & Sort */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -47,11 +57,14 @@
             background-color: #f8f9fa;
             color: #555;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
+            font-size: 13px;
+            cursor: pointer;
+            user-select: none;
         }
+        th:hover { background-color: #e9ecef; }
+        .sort-icon { font-size: 10px; margin-left: 5px; color: #888; }
         tr:hover { background-color: #f1f5ff; }
+        
         .badge-bintang {
             background-color: #ffc107;
             color: #333;
@@ -60,91 +73,227 @@
             font-weight: bold;
             font-size: 13px;
         }
-        .text-kosong {
-            text-align: center;
-            color: #888;
-            font-style: italic;
-            padding: 30px;
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+        .btn-page {
+            padding: 8px 15px;
+            border: none;
+            background-color: #0044cc;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-page:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-page:not(:disabled):hover { background-color: #003399; }
+        .text-kosong { text-align: center; color: #888; font-style: italic; padding: 30px; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>PANEL PEMANTAUAN GURU (BOX-BOT)</h1>
-        <div class="status-cloud">● Realtime Terhubung ke Firebase</div>
+        <div style="font-size: 13px; margin-top: 5px; color: #b3c6ff;">● Auto-Sync Aktif</div>
+    </div>
+
+    <div class="kontrol-panel">
+        <input type="text" id="input-search" class="search-box" placeholder="Cari nama atau kelas siswa..." onkeyup="TerapkanPencarian()">
+        <span id="info-data" style="color: #666; font-size: 14px;">Memuat data...</span>
     </div>
 
     <table>
         <thead>
             <tr>
-                <th>Nama Siswa</th>
-                <th>Kelas</th>
-                <th>Terakhir Main</th>
-                <th>Progres Prisma Segitiga</th>
-                <th>Progres Kubus</th>
+                <th onclick="AturSort('nomor')" style="width: 50px;">No <span class="sort-icon" id="icon-nomor"></span></th>
+                <th onclick="AturSort('nama')">Nama Siswa <span class="sort-icon" id="icon-nama">▲</span></th>
+                <th onclick="AturSort('kelas')">Kelas <span class="sort-icon" id="icon-kelas"></span></th>
+                <th onclick="AturSort('waktu')">Terakhir Main <span class="sort-icon" id="icon-waktu"></span></th>
+                <th onclick="AturSort('prisma')">Progres Prisma <span class="sort-icon" id="icon-prisma"></span></th>
+                <th onclick="AturSort('kubus')">Progres Kubus <span class="sort-icon" id="icon-kubus"></span></th>
             </tr>
         </thead>
         <tbody id="tabel-body">
-            <tr>
-                <td colspan="5" class="text-kosong">Sedang memuat data siswa...</td>
-            </tr>
+            <tr><td colspan="6" class="text-kosong">Sedang menarik data dari Firebase...</td></tr>
         </tbody>
     </table>
 
+    <div class="pagination">
+        <button class="btn-page" id="btn-prev" onclick="UbahHalaman(-1)">◄ Sebelumnya</button>
+        <span id="info-halaman" style="font-weight: bold; color: #555;">Halaman 1 dari 1</span>
+        <button class="btn-page" id="btn-next" onclick="UbahHalaman(1)">Selanjutnya ►</button>
+    </div>
+
     <script>
         // === PASTE URL FIREBASE REALTIME DATABASE DI SINI ===
-        // Suffix URL wajib diakhiri dengan 'data_boxbot.json' agar bisa ditarik filenya
         const URL_DATABASE = "https://boxbot-edu-default-rtdb.asia-southeast1.firebasedatabase.app/data_boxbot.json";
 
-        // Fungsi otomatis untuk mengambil data dari Cloud secara berkala (Polling Realtime)
+        // Variabel State (Penyimpanan Status UI)
+        let dataMentah = [];
+        let kataKunci = "";
+        
+        // Default Sort: Berdasarkan Nama, A-Z (Ascending)
+        let kolomSortAktif = "nama";
+        let sortAscending = true; 
+
+        // Default Pagination
+        let halamanSaatIni = 1;
+        const batasDataPerHalaman = 30;
+
+        // 1. FUNGSI MENARIK DATA DARI FIREBASE
         async function AmbilDataFirebase() {
             try {
                 const response = await fetch(URL_DATABASE);
                 const data = await response.json();
                 
-                const tabelBody = document.getElementById("tabel-body");
-                tabelBody.innerHTML = ""; // Bersihkan baris lama
+                if (data && data.daftar_pemain) {
+                    dataMentah = data.daftar_pemain;
+                    RenderTabel(); // Proses dan gambar tabelnya
+                }
+            } catch (error) {
+                console.error("Gagal memuat data:", error);
+            }
+        }
 
-                if (!data || !data.daftar_pemain || data.daftar_pemain.length === 0) {
-                    tabelBody.innerHTML = `<tr><td colspan="5" class="text-kosong">Belum ada data siswa terdaftar di database.</td></tr>`;
-                    return;
+        // 2. FUNGSI PENCARIAN (Dipanggil saat mengetik di input box)
+        function TerapkanPencarian() {
+            kataKunci = document.getElementById("input-search").value.toLowerCase();
+            halamanSaatIni = 1; // Kembali ke halaman 1 setiap kali mencari
+            RenderTabel();
+        }
+
+        // 3. FUNGSI PENGURUTAN (Dipanggil saat judul kolom diklik)
+        function AturSort(kolom) {
+            // Jika mengklik kolom yang sama, balik arah urutannya. Jika beda, mulai dari A-Z lagi.
+            if (kolomSortAktif === kolom) {
+                sortAscending = !sortAscending;
+            } else {
+                kolomSortAktif = kolom;
+                sortAscending = true;
+            }
+            RenderTabel();
+        }
+
+        // 4. FUNGSI PAGINATION
+        function UbahHalaman(arah) {
+            halamanSaatIni += arah;
+            RenderTabel();
+        }
+
+        // 5. FUNGSI UTAMA UNTUK MENGGAMBAR TABEL (Filter -> Sort -> Slice -> Render)
+        function RenderTabel() {
+            let dataTampil = [...dataMentah];
+
+            // --- TAHAP A: FILTER PENCARIAN ---
+            if (kataKunci !== "") {
+                dataTampil = dataTampil.filter(p => {
+                    const nama = (p.nama_siswa || "").toLowerCase();
+                    const kelas = (p.kelas || "").toLowerCase();
+                    return nama.includes(kataKunci) || kelas.includes(kataKunci);
+                });
+            }
+
+            // --- TAHAP B: PENGURUTAN (SORTING) ---
+            dataTampil.sort((a, b) => {
+                let nilaiA, nilaiB;
+
+                if (kolomSortAktif === "nama") {
+                    nilaiA = (a.nama_siswa || "").toLowerCase();
+                    nilaiB = (b.nama_siswa || "").toLowerCase();
+                } else if (kolomSortAktif === "kelas") {
+                    nilaiA = (a.kelas || "").toLowerCase();
+                    nilaiB = (b.kelas || "").toLowerCase();
+                } else if (kolomSortAktif === "waktu") {
+                    // Urutkan berdasarkan waktu asli (ISO string), bukan waktu terformat
+                    nilaiA = a.terakhir_main || "";
+                    nilaiB = b.terakhir_main || "";
+                } else if (kolomSortAktif === "prisma") {
+                    nilaiA = a.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
+                    nilaiB = b.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
+                } else if (kolomSortAktif === "kubus") {
+                    nilaiA = a.pencapaian_level?.kubus?.level_tertinggi || 1;
+                    nilaiB = b.pencapaian_level?.kubus?.level_tertinggi || 1;
                 }
 
-                // Lakukan looping untuk menyusun baris tabel berdasarkan array JSON dari Unity
-                data.daftar_pemain.forEach(pemain => {
-                    // Cek kelengkapan data bersyarat (Null Checks)
+                // Logika perbandingan A-Z / Z-A
+                if (nilaiA < nilaiB) return sortAscending ? -1 : 1;
+                if (nilaiA > nilaiB) return sortAscending ? 1 : -1;
+                return 0;
+            });
+
+            // --- TAHAP C: PAGINATION (POTONG DATA SESUAI HALAMAN) ---
+            const totalData = dataTampil.length;
+            const totalHalaman = Math.ceil(totalData / batasDataPerHalaman) || 1;
+            
+            // Cegah halaman bablas jika data berkurang akibat search
+            if (halamanSaatIni > totalHalaman) halamanSaatIni = totalHalaman;
+            if (halamanSaatIni < 1) halamanSaatIni = 1;
+
+            const indexMulai = (halamanSaatIni - 1) * batasDataPerHalaman;
+            const dataHalamanIni = dataTampil.slice(indexMulai, indexMulai + batasDataPerHalaman);
+
+            // --- TAHAP D: RENDER KE HTML ---
+            const tabelBody = document.getElementById("tabel-body");
+            tabelBody.innerHTML = "";
+
+            if (dataHalamanIni.length === 0) {
+                tabelBody.innerHTML = `<tr><td colspan="6" class="text-kosong">Tidak ada data ditemukan.</td></tr>`;
+            } else {
+                // Gambar baris tabel
+                dataHalamanIni.forEach((pemain, index) => {
+                    // Kalkulasi nomor urut global berdasarkan halaman
+                    const nomorUrut = indexMulai + index + 1;
+
                     const prismaLvl = pemain.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
                     const kubusLvl = pemain.pencapaian_level?.kubus?.level_tertinggi || 1;
                     
-                    // Format waktu agar lebih manusiawi
-                    let waktuFormat = "Belum terdeteksi";
+                    let waktuFormat = "-";
                     if(pemain.terakhir_main) {
                         const dateObj = new Date(pemain.terakhir_main);
                         waktuFormat = dateObj.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
                     }
 
-                    // Buat element baris (tr) baru
                     const row = document.createElement("tr");
                     row.innerHTML = `
+                        <td style="color: #888;">${nomorUrut}</td>
                         <td style="font-weight: bold; color: #111;">${pemain.nama_siswa || 'Tanpa Nama'}</td>
-                        <td>${pemain.kelas || 'Belum diatur'}</td>
+                        <td>${pemain.kelas || '-'}</td>
                         <td style="font-size: 13px; color: #666;">${waktuFormat}</td>
-                        <td><span class="badge-bintang">★ Level ${prismaLvl}</span></td>
-                        <td><span class="badge-bintang">★ Level ${kubusLvl}</span></td>
+                        <td><span class="badge-bintang">★ Lvl ${prismaLvl}</span></td>
+                        <td><span class="badge-bintang">★ Lvl ${kubusLvl}</span></td>
                     `;
                     tabelBody.appendChild(row);
                 });
-
-            } catch (error) {
-                console.error("Gagal memuat data Firebase:", error);
             }
+
+            // --- TAHAP E: UPDATE UI (Teks, Tombol, Ikon Sort) ---
+            document.getElementById("info-data").innerText = `Menampilkan ${dataHalamanIni.length} dari total ${totalData} siswa`;
+            document.getElementById("info-halaman").innerText = `Halaman ${halamanSaatIni} dari ${totalHalaman}`;
+            
+            document.getElementById("btn-prev").disabled = (halamanSaatIni === 1);
+            document.getElementById("btn-next").disabled = (halamanSaatIni === totalHalaman);
+
+            // Reset semua ikon panah di judul kolom
+            document.querySelectorAll(".sort-icon").forEach(el => el.innerText = "");
+            
+            // Pasang ikon panah di kolom yang sedang aktif
+            const ikonAktif = document.getElementById("icon-" + kolomSortAktif);
+            if(ikonAktif) ikonAktif.innerText = sortAscending ? "▲" : "▼";
         }
 
-        // Jalankan fungsi saat web pertama kali dibuka
+        // Panggil saat web pertama dibuka
         AmbilDataFirebase();
 
-        // Lakukan pembacaan otomatis setiap 3 detik agar tabel berkedip update secara realtime!
+        // Refresh data dari cloud setiap 3 detik (UI tidak akan rusak/mereset saat refresh)
         setInterval(AmbilDataFirebase, 3000);
     </script>
 </body>
