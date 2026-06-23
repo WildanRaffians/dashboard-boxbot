@@ -1,0 +1,104 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f6f9;
+    color: #333;
+}
+
+.header {
+    background-color: #0044cc;
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+h1 { margin: 0; font-size: 24px; }
+
+/* Kontrol Atas (Search & Info) */
+.kontrol-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.search-box {
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    width: 300px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.search-box:focus { 
+    border-color: #0044cc; 
+    box-shadow: 0 0 5px rgba(0,68,204,0.3); 
+}
+
+/* Tabel & Sort */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: #555;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+}
+
+th:hover { background-color: #e9ecef; }
+.sort-icon { font-size: 10px; margin-left: 5px; color: #888; }
+tr:hover { background-color: #f1f5ff; }
+
+.badge-bintang {
+    background-color: #ffc107;
+    color: #333;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    background: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.btn-page {
+    padding: 8px 15px;
+    border: none;
+    background-color: #0044cc;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-page:disabled { background-color: #ccc; cursor: not-allowed; }
+.btn-page:not(:disabled):hover { background-color: #003399; }
+.text-kosong { text-align: center; color: #888; font-style: italic; padding: 30px; }
