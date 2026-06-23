@@ -91,9 +91,30 @@ function RenderTabel() {
         } else if (kolomSortAktif === "prisma") {
             nilaiA = a.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
             nilaiB = b.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
-        } else if (kolomSortAktif === "kubus") {
+        } 
+        else if (kolomSortAktif === "kubus") {
             nilaiA = a.pencapaian_level?.kubus?.level_tertinggi || 1;
             nilaiB = b.pencapaian_level?.kubus?.level_tertinggi || 1;
+        }
+        else if (kolomSortAktif === "balok") {
+            nilaiA = a.pencapaian_level?.balok?.level_tertinggi || 1;
+            nilaiB = b.pencapaian_level?.balok?.level_tertinggi || 1;
+        }
+        else if (kolomSortAktif === "limas") {
+            nilaiA = a.pencapaian_level?.limas?.level_tertinggi || 1;
+            nilaiB = b.pencapaian_level?.limas?.level_tertinggi || 1;
+        }
+        else if (kolomSortAktif === "tabung") {
+            nilaiA = a.pencapaian_level?.tabung?.level_tertinggi || 1;
+            nilaiB = b.pencapaian_level?.tabung?.level_tertinggi || 1;
+        }
+        else if (kolomSortAktif === "kerucut") {
+            nilaiA = a.pencapaian_level?.kerucut?.level_tertinggi || 1;
+            nilaiB = b.pencapaian_level?.kerucut?.level_tertinggi || 1;
+        }
+        else if (kolomSortAktif === "bola") {
+            nilaiA = a.pencapaian_level?.bola?.level_tertinggi || 1;
+            nilaiB = b.pencapaian_level?.bola?.level_tertinggi || 1;
         }
 
         if (nilaiA < nilaiB) return sortAscending ? -1 : 1;
