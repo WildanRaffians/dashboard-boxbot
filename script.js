@@ -51,7 +51,17 @@ function UbahHalaman(arah) {
     halamanSaatIni += arah;
     RenderTabel();
 }
-
+// Fungsi pembantu untuk menentukan teks progres berdasarkan level
+function DapatkanTeksProgres(level) {
+    if (level === 1) {
+        return `<span class="badge-belum">Belum dimainkan</span>`;
+    } else if (level >= 4) {
+        return `<span class="badge-tuntas">✨ Tuntas</span>`;
+    } else {
+        // Menampilkan Level 2 atau Level 3 sesuai progres berjalan
+        return `<span class="badge-bintang">★ Lvl ${level}</span>`;
+    }
+}
 // 5. FUNGSI RENDER TABEL
 function RenderTabel() {
     let dataTampil = [...dataMentah];
@@ -110,8 +120,14 @@ function RenderTabel() {
     } else {
         dataHalamanIni.forEach((pemain, index) => {
             const nomorUrut = indexMulai + index + 1;
-            const prismaLvl = pemain.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
-            const kubusLvl = pemain.pencapaian_level?.kubus?.level_tertinggi || 1;
+            
+            // Ambil angka level asli dari database (default 1 jika null)
+            const prismaLvlRaw = pemain.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
+            const kubusLvlRaw = pemain.pencapaian_level?.kubus?.level_tertinggi || 1;
+            
+            // Ubah angka tersebut menjadi elemen badge text menggunakan fungsi pembantu kita
+            const kolomPrisma = DapatkanTeksProgres(prismaLvlRaw);
+            const kolomKubus = DapatkanTeksProgres(kubusLvlRaw);
             
             let waktuFormat = "-";
             if(pemain.terakhir_main) {
@@ -134,8 +150,8 @@ function RenderTabel() {
                 <td style="font-weight: bold; color: #111;">${pemain.nama_siswa || 'Tanpa Nama'}</td>
                 <td>${pemain.kelas || '-'}</td>
                 <td style="font-size: 13px; color: #666;">${waktuFormat}</td>
-                <td><span class="badge-bintang">★ Lvl ${prismaLvl}</span></td>
-                <td><span class="badge-bintang">★ Lvl ${kubusLvl}</span></td>
+                <td>${kolomPrisma}</td>
+                <td>${kolomKubus}</td>
             `;
             tabelBody.appendChild(row);
         });

@@ -77,6 +77,27 @@ tr:hover { background-color: #f1f5ff; }
     font-size: 13px;
 }
 
+/* Badge untuk Level 1 (Belum Dimainkan) */
+.badge-belum {
+    background-color: #e9ecef;
+    color: #6c757d;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Badge untuk Level 4 (Tuntas/Selesai) */
+.badge-tuntas {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 13px;
+    border: 1px solid #c3e6cb;
+}
+
 /* Pagination */
 .pagination {
     display: flex;
