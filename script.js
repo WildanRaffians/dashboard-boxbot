@@ -115,8 +115,17 @@ function RenderTabel() {
             
             let waktuFormat = "-";
             if(pemain.terakhir_main) {
-                const dateObj = new Date(pemain.terakhir_main);
-                waktuFormat = dateObj.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+                // Konversi paksa tanda titik (.) menjadi titik dua (:) agar terbaca oleh browser
+                let waktuAman = pemain.terakhir_main.replace(/\./g, ':');
+                
+                const dateObj = new Date(waktuAman);
+                
+                // Pastikan hasilnya bukan Invalid Date sebelum dicetak
+                if (!isNaN(dateObj)) {
+                    waktuFormat = dateObj.toLocaleString('id-ID', { timeZone: 'Asia/Jakarta' });
+                } else {
+                    waktuFormat = "Format Waktu Rusak";
+                }
             }
 
             const row = document.createElement("tr");
