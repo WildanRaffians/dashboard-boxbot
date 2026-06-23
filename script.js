@@ -148,8 +148,8 @@ function RenderTabel() {
             const balokLvlRaw = pemain.pencapaian_level?.balok?.level_tertinggi || 1;
             const limasLvlRaw = pemain.pencapaian_level?.limas?.level_tertinggi || 1;
             const tabungLvlRaw = pemain.pencapaian_level?.tabung?.level_tertinggi || 1;
-            const kerucutLvlRaw = pemain.pencapaian_level?.kkerucut.level_tertinggi || 1;
-            const bolaLvlRaw = pemain.pencapaian_level?.kubbolaevel_tertinggi || 1;
+            const kerucutLvlRaw = pemain.pencapaian_level?.kerucut?.level_tertinggi || 1;
+            const bolaLvlRaw = pemain.pencapaian_level?.bola?.level_tertinggi || 1;
             
             // Ubah angka tersebut menjadi elemen badge text menggunakan fungsi pembantu kita
             const kolomPrisma = DapatkanTeksProgres(prismaLvlRaw);
