@@ -56,10 +56,10 @@ function DapatkanTeksProgres(level) {
     if (level === 1) {
         return `<span class="badge-belum">Belum dimainkan</span>`;
     } else if (level >= 4) {
-        return `<span class="badge-tuntas">✨ Tuntas</span>`;
+        return `<span class="badge-tuntas">Tuntas</span>`;
     } else {
         // Menampilkan Level 2 atau Level 3 sesuai progres berjalan
-        return `<span class="badge-bintang">★ Lvl ${level}</span>`;
+        return `<span class="badge-bintang">Lvl ${level}</span>`;
     }
 }
 // 5. FUNGSI RENDER TABEL
