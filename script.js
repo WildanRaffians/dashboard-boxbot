@@ -1,5 +1,5 @@
 // === PASTE URL FIREBASE REALTIME DATABASE DI SINI ===
-const URL_DATABASE = "https://boxbot-edu-default-rtdb.asia-southeast1.firebasedatabase.app/data_boxbot.json";
+const URL_DATABASE = "https://boxbot-edu-default-rtdb.asia-southeast1.firebasedatabase.app/daftar_pemain.json";
 
 // Variabel State (Penyimpanan Status UI)
 let dataMentah = [];
@@ -19,8 +19,16 @@ async function AmbilDataFirebase() {
         const response = await fetch(URL_DATABASE);
         const data = await response.json();
         
-        if (data && data.daftar_pemain) {
-            dataMentah = data.daftar_pemain;
+        // Cek apakah data ada (tidak null)
+        if (data) {
+            // Firebase mengembalikan Object, bukan Array.
+            // Gunakan Object.values(data) untuk merakit ulang Object tersebut menjadi Array
+            // agar fitur Search, Sort, dan Pagination di bawahnya tetap berfungsi normal!
+            dataMentah = Object.values(data);
+            RenderTabel();
+        } else {
+            // Jika database benar-benar kosong
+            dataMentah = [];
             RenderTabel();
         }
     } catch (error) {
