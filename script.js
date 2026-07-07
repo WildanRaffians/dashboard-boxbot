@@ -66,8 +66,9 @@ function DapatkanTeksProgres(level) {
     } else if (level >= 4) {
         return `<span class="badge-tuntas">Tuntas</span>`;
     } else {
+        let levelTerkini = level-1;
         // Menampilkan Level 2 atau Level 3 sesuai progres berjalan
-        return `<span class="badge-bintang">Lvl ${level}</span>`;
+        return `<span class="badge-bintang">Lvl ${levelTerkini}</span>`;
     }
 }
 // 5. FUNGSI RENDER TABEL
