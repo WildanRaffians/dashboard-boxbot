@@ -110,8 +110,8 @@ function RenderTabel() {
             nilaiB = b.pencapaian_level?.balok?.level_tertinggi || 1;
         }
         else if (kolomSortAktif === "limas") {
-            nilaiA = a.pencapaian_level?.limas?.level_tertinggi || 1;
-            nilaiB = b.pencapaian_level?.limas?.level_tertinggi || 1;
+            nilaiA = a.pencapaian_level?.limas_persegi?.level_tertinggi || 1;
+            nilaiB = b.pencapaian_level?.limas_persegi?.level_tertinggi || 1;
         }
         else if (kolomSortAktif === "tabung") {
             nilaiA = a.pencapaian_level?.tabung?.level_tertinggi || 1;
@@ -155,7 +155,7 @@ function RenderTabel() {
             const prismaLvlRaw = pemain.pencapaian_level?.prisma_segitiga?.level_tertinggi || 1;
             const kubusLvlRaw = pemain.pencapaian_level?.kubus?.level_tertinggi || 1;
             const balokLvlRaw = pemain.pencapaian_level?.balok?.level_tertinggi || 1;
-            const limasLvlRaw = pemain.pencapaian_level?.limas?.level_tertinggi || 1;
+            const limasLvlRaw = pemain.pencapaian_level?.limas_persegi?.level_tertinggi || 1;
             const tabungLvlRaw = pemain.pencapaian_level?.tabung?.level_tertinggi || 1;
             const kerucutLvlRaw = pemain.pencapaian_level?.kerucut?.level_tertinggi || 1;
             const bolaLvlRaw = pemain.pencapaian_level?.bola?.level_tertinggi || 1;
